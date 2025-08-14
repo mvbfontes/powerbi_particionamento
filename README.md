@@ -1,14 +1,9 @@
-# \# Particionamento de dados no Power BI
+## Particionamento de dados no Power BI
 
+Arquivo no formato PBIP utilizado para tutorial de exemplo de particionamento de dados do dataset "Contoso", tabela "sales".
 
+O vídeo explicativo está neste link:
 
-Arquivo no formato PBIP utilizando como exemplo de particionamento de dados do dataset "Contoso", tabela "sales".
-
-
-
-O vídeo do tutorial está neste link:
-
-
-
+https://youtu.be/fyPiDkbHlGQ
 
 
