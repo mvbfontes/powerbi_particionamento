@@ -1,0 +1,266 @@
+table sales
+	lineageTag: db85c2e2-48b6-47fe-810a-4ddb0e505640
+
+	column OrderKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 3b04c5c6-e2d2-4852-8f64-e82d35e19240
+		summarizeBy: count
+		sourceColumn: OrderKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column LineNumber
+		dataType: int64
+		formatString: 0
+		lineageTag: 575d7ded-384b-4102-85fd-dfe5bf068d0f
+		summarizeBy: sum
+		sourceColumn: LineNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrderDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4e53db78-683b-4722-996a-2b7ffcbf67fa
+		summarizeBy: none
+		sourceColumn: OrderDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DeliveryDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 82061a07-e2b7-4aac-a8a6-789bcd41bcea
+		summarizeBy: none
+		sourceColumn: DeliveryDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column CustomerKey
+		dataType: int64
+		formatString: 0
+		lineageTag: bf7e978a-3379-4be9-853a-30a7427743dc
+		summarizeBy: count
+		sourceColumn: CustomerKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column StoreKey
+		dataType: int64
+		formatString: 0
+		lineageTag: a7341f56-c013-419e-89e7-24bda139a047
+		summarizeBy: count
+		sourceColumn: StoreKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 49718e27-416e-4dfa-9721-18f179009425
+		summarizeBy: count
+		sourceColumn: ProductKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 809908c3-6d1b-4ecd-82e5-0501e566ab12
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice
+		dataType: int64
+		formatString: 0
+		lineageTag: e32b7cd0-5402-46e2-bdff-71202895bd70
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+	column NetPrice
+		dataType: int64
+		formatString: 0
+		lineageTag: 60f4ef51-e214-408c-9d97-8f049d60e0e5
+		summarizeBy: sum
+		sourceColumn: NetPrice
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitCost
+		dataType: int64
+		formatString: 0
+		lineageTag: bf334fd9-a82f-489f-b722-7d99f33e7d9e
+		summarizeBy: sum
+		sourceColumn: UnitCost
+
+		annotation SummarizationSetBy = Automatic
+
+	column CurrencyCode
+		dataType: string
+		lineageTag: df758b2b-8a73-4179-ae66-8dd17928996d
+		summarizeBy: none
+		sourceColumn: CurrencyCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExchangeRate
+		dataType: int64
+		formatString: 0
+		lineageTag: a2954a07-d263-4745-819a-b9a159833f45
+		summarizeBy: sum
+		sourceColumn: ExchangeRate
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrderDateKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 2a938ffb-af5d-4475-bb05-ee3e4b2fe024
+		summarizeBy: count
+		sourceColumn: OrderDateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	partition sales_2015 = m
+		mode: import
+		source =
+				let
+				    Fonte = Csv.Document(Web.Contents("https://raw.githubusercontent.com/mvbfontes/DatasetsTreinamento/refs/heads/main/Contoso/sales.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"OrderKey", Int64.Type}, {"LineNumber", Int64.Type}, {"OrderDate", type date}, {"DeliveryDate", type date}, {"CustomerKey", Int64.Type}, {"StoreKey", Int64.Type}, {"ProductKey", Int64.Type}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"NetPrice", Int64.Type}, {"UnitCost", Int64.Type}, {"CurrencyCode", type text}, {"ExchangeRate", Int64.Type}}),
+				    #"Com OrderDateKey" = Table.AddColumn(#"Tipo Alterado", "OrderDateKey", each Text.From(Date.Year([OrderDate])) & Text.PadStart(Text.From(Date.Month([OrderDate])), 2, "0") & Text.PadStart(Text.From(Date.Day([OrderDate])),2,"0")),
+				    #"Tipo Alterado1" = Table.TransformColumnTypes(#"Com OrderDateKey",{{"OrderDateKey", Int64.Type}}),
+				    #"Linhas Filtradas" = Table.SelectRows(#"Tipo Alterado1", each [OrderDateKey] >= 20150101 and [OrderDateKey] <= 20151231)
+				in
+				    #"Linhas Filtradas"
+
+	partition sales_2016 = m
+		mode: import
+		source =
+				let
+					Fonte = Csv.Document(Web.Contents("https://raw.githubusercontent.com/mvbfontes/DatasetsTreinamento/refs/heads/main/Contoso/sales.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+					#"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+					#"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"OrderKey", Int64.Type}, {"LineNumber", Int64.Type}, {"OrderDate", type date}, {"DeliveryDate", type date}, {"CustomerKey", Int64.Type}, {"StoreKey", Int64.Type}, {"ProductKey", Int64.Type}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"NetPrice", Int64.Type}, {"UnitCost", Int64.Type}, {"CurrencyCode", type text}, {"ExchangeRate", Int64.Type}}),
+					#"Com OrderDateKey" = Table.AddColumn(#"Tipo Alterado", "OrderDateKey", each Text.From(Date.Year([OrderDate])) & Text.PadStart(Text.From(Date.Month([OrderDate])), 2, "0") & Text.PadStart(Text.From(Date.Day([OrderDate])),2,"0")),
+					#"Tipo Alterado1" = Table.TransformColumnTypes(#"Com OrderDateKey",{{"OrderDateKey", Int64.Type}}),
+					#"Linhas Filtradas" = Table.SelectRows(#"Tipo Alterado1", each [OrderDateKey] >= 20160101 and [OrderDateKey] <= 20161231)
+				in
+					#"Linhas Filtradas"
+
+	partition sales_2017 = m
+		mode: import
+		source =
+				let
+					Fonte = Csv.Document(Web.Contents("https://raw.githubusercontent.com/mvbfontes/DatasetsTreinamento/refs/heads/main/Contoso/sales.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+					#"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+					#"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"OrderKey", Int64.Type}, {"LineNumber", Int64.Type}, {"OrderDate", type date}, {"DeliveryDate", type date}, {"CustomerKey", Int64.Type}, {"StoreKey", Int64.Type}, {"ProductKey", Int64.Type}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"NetPrice", Int64.Type}, {"UnitCost", Int64.Type}, {"CurrencyCode", type text}, {"ExchangeRate", Int64.Type}}),
+					#"Com OrderDateKey" = Table.AddColumn(#"Tipo Alterado", "OrderDateKey", each Text.From(Date.Year([OrderDate])) & Text.PadStart(Text.From(Date.Month([OrderDate])), 2, "0") & Text.PadStart(Text.From(Date.Day([OrderDate])),2,"0")),
+					#"Tipo Alterado1" = Table.TransformColumnTypes(#"Com OrderDateKey",{{"OrderDateKey", Int64.Type}}),
+					#"Linhas Filtradas" = Table.SelectRows(#"Tipo Alterado1", each [OrderDateKey] >= 20170101 and [OrderDateKey] <= 20171231)
+				in
+					#"Linhas Filtradas"
+
+	partition sales_2018 = m
+		mode: import
+		source =
+				let
+					Fonte = Csv.Document(Web.Contents("https://raw.githubusercontent.com/mvbfontes/DatasetsTreinamento/refs/heads/main/Contoso/sales.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+					#"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+					#"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"OrderKey", Int64.Type}, {"LineNumber", Int64.Type}, {"OrderDate", type date}, {"DeliveryDate", type date}, {"CustomerKey", Int64.Type}, {"StoreKey", Int64.Type}, {"ProductKey", Int64.Type}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"NetPrice", Int64.Type}, {"UnitCost", Int64.Type}, {"CurrencyCode", type text}, {"ExchangeRate", Int64.Type}}),
+					#"Com OrderDateKey" = Table.AddColumn(#"Tipo Alterado", "OrderDateKey", each Text.From(Date.Year([OrderDate])) & Text.PadStart(Text.From(Date.Month([OrderDate])), 2, "0") & Text.PadStart(Text.From(Date.Day([OrderDate])),2,"0")),
+					#"Tipo Alterado1" = Table.TransformColumnTypes(#"Com OrderDateKey",{{"OrderDateKey", Int64.Type}}),
+					#"Linhas Filtradas" = Table.SelectRows(#"Tipo Alterado1", each [OrderDateKey] >= 20180101 and [OrderDateKey] <= 20181231)
+				in
+					#"Linhas Filtradas"
+
+	partition sales_2019 = m
+		mode: import
+		source =
+				let
+					Fonte = Csv.Document(Web.Contents("https://raw.githubusercontent.com/mvbfontes/DatasetsTreinamento/refs/heads/main/Contoso/sales.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+					#"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+					#"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"OrderKey", Int64.Type}, {"LineNumber", Int64.Type}, {"OrderDate", type date}, {"DeliveryDate", type date}, {"CustomerKey", Int64.Type}, {"StoreKey", Int64.Type}, {"ProductKey", Int64.Type}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"NetPrice", Int64.Type}, {"UnitCost", Int64.Type}, {"CurrencyCode", type text}, {"ExchangeRate", Int64.Type}}),
+					#"Com OrderDateKey" = Table.AddColumn(#"Tipo Alterado", "OrderDateKey", each Text.From(Date.Year([OrderDate])) & Text.PadStart(Text.From(Date.Month([OrderDate])), 2, "0") & Text.PadStart(Text.From(Date.Day([OrderDate])),2,"0")),
+					#"Tipo Alterado1" = Table.TransformColumnTypes(#"Com OrderDateKey",{{"OrderDateKey", Int64.Type}}),
+					#"Linhas Filtradas" = Table.SelectRows(#"Tipo Alterado1", each [OrderDateKey] >= 20190101 and [OrderDateKey] <= 20191231)
+				in
+					#"Linhas Filtradas"
+
+	partition sales_2020 = m
+		mode: import
+		source =
+				let
+					Fonte = Csv.Document(Web.Contents("https://raw.githubusercontent.com/mvbfontes/DatasetsTreinamento/refs/heads/main/Contoso/sales.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+					#"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+					#"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"OrderKey", Int64.Type}, {"LineNumber", Int64.Type}, {"OrderDate", type date}, {"DeliveryDate", type date}, {"CustomerKey", Int64.Type}, {"StoreKey", Int64.Type}, {"ProductKey", Int64.Type}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"NetPrice", Int64.Type}, {"UnitCost", Int64.Type}, {"CurrencyCode", type text}, {"ExchangeRate", Int64.Type}}),
+					#"Com OrderDateKey" = Table.AddColumn(#"Tipo Alterado", "OrderDateKey", each Text.From(Date.Year([OrderDate])) & Text.PadStart(Text.From(Date.Month([OrderDate])), 2, "0") & Text.PadStart(Text.From(Date.Day([OrderDate])),2,"0")),
+					#"Tipo Alterado1" = Table.TransformColumnTypes(#"Com OrderDateKey",{{"OrderDateKey", Int64.Type}}),
+					#"Linhas Filtradas" = Table.SelectRows(#"Tipo Alterado1", each [OrderDateKey] >= 20200101 and [OrderDateKey] <= 20201231)
+				in
+					#"Linhas Filtradas"
+
+	partition sales_2021 = m
+		mode: import
+		source =
+				let
+					Fonte = Csv.Document(Web.Contents("https://raw.githubusercontent.com/mvbfontes/DatasetsTreinamento/refs/heads/main/Contoso/sales.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+					#"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+					#"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"OrderKey", Int64.Type}, {"LineNumber", Int64.Type}, {"OrderDate", type date}, {"DeliveryDate", type date}, {"CustomerKey", Int64.Type}, {"StoreKey", Int64.Type}, {"ProductKey", Int64.Type}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"NetPrice", Int64.Type}, {"UnitCost", Int64.Type}, {"CurrencyCode", type text}, {"ExchangeRate", Int64.Type}}),
+					#"Com OrderDateKey" = Table.AddColumn(#"Tipo Alterado", "OrderDateKey", each Text.From(Date.Year([OrderDate])) & Text.PadStart(Text.From(Date.Month([OrderDate])), 2, "0") & Text.PadStart(Text.From(Date.Day([OrderDate])),2,"0")),
+					#"Tipo Alterado1" = Table.TransformColumnTypes(#"Com OrderDateKey",{{"OrderDateKey", Int64.Type}}),
+					#"Linhas Filtradas" = Table.SelectRows(#"Tipo Alterado1", each [OrderDateKey] >= 20210101 and [OrderDateKey] <= 20211231)
+				in
+					#"Linhas Filtradas"
+
+	partition sales_2022 = m
+		mode: import
+		source =
+				let
+					Fonte = Csv.Document(Web.Contents("https://raw.githubusercontent.com/mvbfontes/DatasetsTreinamento/refs/heads/main/Contoso/sales.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+					#"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+					#"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"OrderKey", Int64.Type}, {"LineNumber", Int64.Type}, {"OrderDate", type date}, {"DeliveryDate", type date}, {"CustomerKey", Int64.Type}, {"StoreKey", Int64.Type}, {"ProductKey", Int64.Type}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"NetPrice", Int64.Type}, {"UnitCost", Int64.Type}, {"CurrencyCode", type text}, {"ExchangeRate", Int64.Type}}),
+					#"Com OrderDateKey" = Table.AddColumn(#"Tipo Alterado", "OrderDateKey", each Text.From(Date.Year([OrderDate])) & Text.PadStart(Text.From(Date.Month([OrderDate])), 2, "0") & Text.PadStart(Text.From(Date.Day([OrderDate])),2,"0")),
+					#"Tipo Alterado1" = Table.TransformColumnTypes(#"Com OrderDateKey",{{"OrderDateKey", Int64.Type}}),
+					#"Linhas Filtradas" = Table.SelectRows(#"Tipo Alterado1", each [OrderDateKey] >= 20220101 and [OrderDateKey] <= 20221231)
+				in
+					#"Linhas Filtradas"
+
+	partition sales_2023 = m
+		mode: import
+		source =
+				let
+					Fonte = Csv.Document(Web.Contents("https://raw.githubusercontent.com/mvbfontes/DatasetsTreinamento/refs/heads/main/Contoso/sales.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+					#"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+					#"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"OrderKey", Int64.Type}, {"LineNumber", Int64.Type}, {"OrderDate", type date}, {"DeliveryDate", type date}, {"CustomerKey", Int64.Type}, {"StoreKey", Int64.Type}, {"ProductKey", Int64.Type}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"NetPrice", Int64.Type}, {"UnitCost", Int64.Type}, {"CurrencyCode", type text}, {"ExchangeRate", Int64.Type}}),
+					#"Com OrderDateKey" = Table.AddColumn(#"Tipo Alterado", "OrderDateKey", each Text.From(Date.Year([OrderDate])) & Text.PadStart(Text.From(Date.Month([OrderDate])), 2, "0") & Text.PadStart(Text.From(Date.Day([OrderDate])),2,"0")),
+					#"Tipo Alterado1" = Table.TransformColumnTypes(#"Com OrderDateKey",{{"OrderDateKey", Int64.Type}}),
+					#"Linhas Filtradas" = Table.SelectRows(#"Tipo Alterado1", each [OrderDateKey] >= 20230101 and [OrderDateKey] <= 20231231)
+				in
+					#"Linhas Filtradas"
+
+	partition sales_2024 = m
+		mode: import
+		source =
+				let
+					Fonte = Csv.Document(Web.Contents("https://raw.githubusercontent.com/mvbfontes/DatasetsTreinamento/refs/heads/main/Contoso/sales.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+					#"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),
+					#"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"OrderKey", Int64.Type}, {"LineNumber", Int64.Type}, {"OrderDate", type date}, {"DeliveryDate", type date}, {"CustomerKey", Int64.Type}, {"StoreKey", Int64.Type}, {"ProductKey", Int64.Type}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"NetPrice", Int64.Type}, {"UnitCost", Int64.Type}, {"CurrencyCode", type text}, {"ExchangeRate", Int64.Type}}),
+					#"Com OrderDateKey" = Table.AddColumn(#"Tipo Alterado", "OrderDateKey", each Text.From(Date.Year([OrderDate])) & Text.PadStart(Text.From(Date.Month([OrderDate])), 2, "0") & Text.PadStart(Text.From(Date.Day([OrderDate])),2,"0")),
+					#"Tipo Alterado1" = Table.TransformColumnTypes(#"Com OrderDateKey",{{"OrderDateKey", Int64.Type}}),
+					#"Linhas Filtradas" = Table.SelectRows(#"Tipo Alterado1", each [OrderDateKey] >= 20240101 and [OrderDateKey] <= 20241231)
+				in
+					#"Linhas Filtradas"
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+
